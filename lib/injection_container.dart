@@ -39,6 +39,13 @@ init() async {
   Get.put<TableRemoteDatasource>(
     TableRemoteDatasourceImpl(client: Get.find()),
   );
+  Get.lazyPut<MealLocalDatasource>(
+    () => MealLocalDatasourceImpl(db: database),
+    fenix: true,
+  );
+  Get.put<MealRemoteDatasource>(
+    MealRemoteDatasourceImpl(client: Get.find()),
+  );
 
   // repositories
   Get.lazyPut<TableRepo>(
@@ -49,10 +56,19 @@ init() async {
     ),
     fenix: true,
   );
+  Get.lazyPut<MealRepo>(
+    () => MealRepoImpl(
+      networkInfo: Get.find(),
+      remoteDatasource: Get.find(),
+      localDatasource: Get.find(),
+    ),
+    fenix: true,
+  );
 
   // usecases
   Get.lazyPut(() => GetTables(repo: Get.find()), fenix: true);
   Get.lazyPut(() => ChangeStatusOfTable(repo: Get.find()), fenix: true);
+  Get.lazyPut(() => GetMeals(repo: Get.find()), fenix: true);
 
   // controllers
   Get.put<HomePageControllerImpl>(
