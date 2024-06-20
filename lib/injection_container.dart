@@ -46,6 +46,13 @@ init() async {
   Get.put<MealRemoteDatasource>(
     MealRemoteDatasourceImpl(client: Get.find()),
   );
+  Get.lazyPut<OrderLocalDatasource>(
+    () => OrderLocalDatasourceImpl(db: database),
+    fenix: true,
+  );
+  Get.put<OrderRemoteDatasource>(
+    OrderRemoteDatasourceImpl(client: Get.find()),
+  );
 
   // repositories
   Get.lazyPut<TableRepo>(
@@ -64,16 +71,34 @@ init() async {
     ),
     fenix: true,
   );
+  Get.lazyPut<OrderRepo>(
+    () => OrderRepoImpl(
+      networkInfo: Get.find(),
+      remoteDatasource: Get.find(),
+      localDatasource: Get.find(),
+    ),
+    fenix: true,
+  );
 
   // usecases
   Get.lazyPut(() => GetTables(repo: Get.find()), fenix: true);
   Get.lazyPut(() => ChangeStatusOfTable(repo: Get.find()), fenix: true);
   Get.lazyPut(() => GetMeals(repo: Get.find()), fenix: true);
+  Get.lazyPut(() => GetOrdersForTable(repo: Get.find()), fenix: true);
+  Get.lazyPut(() => SaveOrdersForTable(repo: Get.find()), fenix: true);
 
   // controllers
   Get.put<HomePageControllerImpl>(
     HomePageControllerImpl(
       getTablesUsecase: Get.find(),
+      changeStatusOfTableUsecase: Get.find(),
+    ),
+  );
+  Get.put<TableDetailPageControllerImpl>(
+    TableDetailPageControllerImpl(
+      getMealsUsecase: Get.find(),
+      getOrdersForTableUsecase: Get.find(),
+      saveOrdersForTableUsecase: Get.find(),
       changeStatusOfTableUsecase: Get.find(),
     ),
   );

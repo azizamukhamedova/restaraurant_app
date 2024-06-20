@@ -2,42 +2,54 @@
 
 import 'package:equatable/equatable.dart';
 
+import '/src/data/models/meal_model.dart';
+
 class OrderModel extends Equatable {
   int? _id;
   int? _tableId;
-  int? _mealId;
+  MealModel? _meal;
+  int? _quantity;
 
   OrderModel({
     int? id,
     int? tableId,
-    int? mealId,
+    MealModel? meal,
+    int? quantity,
   })  : _id = id,
         _tableId = tableId,
-        _mealId = mealId;
+        _meal = meal,
+        _quantity = quantity;
 
   int? get id => _id;
   int? get tableId => _tableId;
-  int? get mealId => _mealId;
+  MealModel? get meal => _meal;
+  int? get quantity => _quantity;
 
   set setTableId(int? value) {
     _tableId = value;
   }
 
-  set setMealId(int? value) {
-    _mealId = value;
+  set setMeal(MealModel? value) {
+    _meal = value;
+  }
+
+  set setQuantity(int? value) {
+    _quantity = value;
   }
 
   OrderModel.fromJson(Map<String, dynamic> json) {
     _id = json['id'];
     _tableId = json['table_id'];
-    _mealId = json['meal_id'];
+    _meal = json['meal'] != null ? MealModel.fromJson(json['meal']) : null;
+    _quantity = json['quantity'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = _id;
     data['table_id'] = _tableId;
-    data['meal_id'] = _mealId;
+    data['meal'] = _meal?.toJson();
+    data['quantity'] = _quantity;
     return data;
   }
 
@@ -45,6 +57,7 @@ class OrderModel extends Equatable {
   List<Object?> get props => [
         _id,
         _tableId,
-        _mealId,
+        _meal,
+        _quantity,
       ];
 }
