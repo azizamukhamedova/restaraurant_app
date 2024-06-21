@@ -7,7 +7,8 @@ abstract class TableRemoteDatasource {
   Future<List<TableModel>> fetchTables();
   Future<void> changeStatus({
     required int id,
-    required String status,
+    required bool hasStarted,
+    required bool hasGivenBill,
   });
 }
 
@@ -24,7 +25,8 @@ class TableRemoteDatasourceImpl extends TableRemoteDatasource {
   @override
   Future<void> changeStatus({
     required int id,
-    required String status,
+    required bool hasStarted,
+    required bool hasGivenBill,
   }) {
     throw UnimplementedError();
   }

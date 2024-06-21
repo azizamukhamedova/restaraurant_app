@@ -20,7 +20,6 @@ class TablesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _controller.getTables();
-
     return GetBuilder(
       init: _controller,
       id: _controller.tableListId,
@@ -44,28 +43,33 @@ class TableItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Get.toNamed(AppRoutes.tableDetail, arguments: table),
+      onTap: () {
+        Get.toNamed(AppRoutes.tableDetail, arguments: table);
+      },
       child: Container(
         margin: paddingTop16,
         padding: paddingAll20,
         decoration: BoxDecoration(color: Colors.blue[50]),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Icon(
-              Icons.table_restaurant,
-              color: Colors.blueAccent,
-            ),
-            horizontalSpace20,
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                const Icon(
+                  Icons.table_restaurant,
+                  color: Colors.blueAccent,
+                ),
+                horizontalSpace20,
                 Text(table.title ?? 'Table'),
-                table.status?.isNotEmpty == true
-                    ? Text(table.status ?? '')
-                    : empty,
               ],
             ),
+            table.hasGivenBill == true
+                ? const Icon(Icons.money, color: Colors.blueAccent)
+                : empty,
+            table.hasGivenBill == false && table.hasStarted == true
+                ? const Icon(Icons.star, color: Colors.blueAccent)
+                : empty,
           ],
         ),
       ),

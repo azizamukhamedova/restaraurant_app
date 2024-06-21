@@ -15,7 +15,8 @@ abstract class TableRepo {
   Future<Either<Failure, List<TableModel>>> getTables();
   Future<Either<Failure, void>> changeStatus({
     required int id,
-    required String status,
+    required bool hasStarted,
+    required bool hasGivenBill,
   });
 }
 
@@ -54,20 +55,23 @@ class TableRepoImpl extends TableRepo {
   @override
   Future<Either<Failure, void>> changeStatus({
     required int id,
-    required String status,
+    required bool hasStarted,
+    required bool hasGivenBill,
   }) async {
     bool isConnectedToNetwork = await networkInfo.isConnected;
     try {
       if (isConnectedToNetwork) {
         final res = await remoteDatasource.changeStatus(
           id: id,
-          status: status,
+          hasStarted: hasStarted,
+          hasGivenBill: hasGivenBill,
         );
         return Right(res);
       } else {
         final res = await localDatasource.changeStatus(
           id: id,
-          status: status,
+          hasStarted: hasStarted,
+          hasGivenBill: hasGivenBill,
         );
         return Right(res);
       }

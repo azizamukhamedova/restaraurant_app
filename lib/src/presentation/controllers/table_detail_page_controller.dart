@@ -1,20 +1,27 @@
 import 'package:get/get.dart';
-import 'package:restaraurant_app/src/data/models/order_model.dart';
 
 /// utils
 import '/core/error/failure.dart';
 import '/core/usecase/usecase.dart';
 
 /// models
+import '/src/data/models/meal_model.dart';
+import '/src/data/models/order_model.dart';
 import '/src/data/models/table_model.dart';
 
 /// usecases
 import '/src/domain/usecases/.usecases.dart';
 
+import '/src/presentation/controllers/.controllers.dart';
+
+final HomePageControllerImpl homeController = Get.find();
+
 abstract class TableDetailPageController {
-  // Future<void> getMeals();
-  Future<void> getOrdersForTable(int id);
+  Future<void> getMeals();
+  Future<void> getOrdersForTable(TableModel table);
   Future<void> saveOrdersForTable();
+  void addMeal(MealModel meal);
+  void decreaseMeal(OrderModel order);
 }
 
 class TableDetailPageControllerImpl extends GetxController
@@ -34,21 +41,20 @@ class TableDetailPageControllerImpl extends GetxController
 
   // results
   List<OrderModel> orders = [];
-  int tableId = 0;
+  TableModel? tableModel;
+  List<MealModel> meals = [];
 
   // get builder's id
-  final String tableListId = "order_list_id";
+  final String orderListId = "order_list_id";
+  final String mealListId = "meal_list_id";
 
   // error messages
   String orderListError = "";
 
   @override
-  Future<void> getOrdersForTable(int id) async {
-    tableId = id;
-    final alertsResponse = await getOrdersForTableUsecase.call(
-      GetOrdersForTableParams(tableId: tableId),
-    );
-    alertsResponse.fold((failure) {
+  Future<void> getMeals() async {
+    final res = await getMealsUsecase.call(NoParams());
+    res.fold((failure) {
       if (failure is NetworkFailure) {
         orderListError = "network is not connected!";
         Get.log("network is not connected!");
@@ -61,22 +67,84 @@ class TableDetailPageControllerImpl extends GetxController
         orderListError = "Something went wrong!";
         Get.log("Something went wrong!");
       }
-      update([tableListId]);
+      update([mealListId]);
+    }, (response) async {
+      meals = response;
+      update([mealListId]);
+    });
+  }
+
+  @override
+  void addMeal(MealModel meal) async {
+    OrderModel? order =
+        orders.firstWhereOrNull((element) => element.meal?.id == meal.id);
+    if (order != null) {
+      order.setQuantity = (order.quantity ?? 0) + 1;
+    } else {
+      orders.add(
+        OrderModel(meal: meal, quantity: 1, tableId: tableModel?.id),
+      );
+    }
+    update([orderListId]);
+    if (tableModel?.hasStarted != true) {
+      await changeStatusOfTableUsecase.call(
+        ChangeStatusOfTableParams(
+          id: tableModel?.id ?? 0,
+          hasStarted: true,
+          hasGivenBill: false,
+        ),
+      );
+      homeController.getTables();
+    }
+  }
+
+  @override
+  void decreaseMeal(OrderModel order) {
+    if (order.quantity == 1) {
+      orders.remove(order);
+    } else {
+      order.setQuantity = (order.quantity ?? 0) - 1;
+    }
+    update([orderListId]);
+  }
+
+  @override
+  Future<void> getOrdersForTable(TableModel table) async {
+    orders = [];
+    update([orderListId]);
+    tableModel = table;
+    final res = await getOrdersForTableUsecase.call(
+      GetOrdersForTableParams(tableId: tableModel?.id ?? 0),
+    );
+    res.fold((failure) {
+      if (failure is NetworkFailure) {
+        orderListError = "network is not connected!";
+        Get.log("network is not connected!");
+      } else if (failure is ServerTimeOutFailure) {
+        orderListError = "network connection is bad!";
+        Get.log("network connection is bad!");
+      } else if (failure is ServerUnAuthorizeFailure) {
+        ///
+      } else {
+        orderListError = "Something went wrong!";
+        Get.log("Something went wrong!");
+      }
+      update([orderListId]);
     }, (response) async {
       orders = response;
-      update([tableListId]);
+      update([orderListId]);
     });
   }
 
   @override
   Future<void> saveOrdersForTable() async {
-    final alertsResponse = await saveOrdersForTableUsecase.call(
+    final res = await saveOrdersForTableUsecase.call(
       SaveOrdersForTableParams(
-        tableId: tableId,
+        tableId: tableModel?.id ?? 0,
         orders: orders,
       ),
     );
-    alertsResponse.fold((failure) {
+    res.fold((failure) {
       if (failure is NetworkFailure) {
         orderListError = "network is not connected!";
         Get.log("network is not connected!");
@@ -89,10 +157,10 @@ class TableDetailPageControllerImpl extends GetxController
         orderListError = "Something went wrong!";
         Get.log("Something went wrong!");
       }
-      update([tableListId]);
+      update([orderListId]);
     }, (response) async {
       // orders = response;
-      update([tableListId]);
+      update([orderListId]);
     });
   }
 }

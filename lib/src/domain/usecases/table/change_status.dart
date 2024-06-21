@@ -16,20 +16,27 @@ class ChangeStatusOfTable extends Usecase<void, ChangeStatusOfTableParams> {
   Future<Either<Failure, void>> call(ChangeStatusOfTableParams params) {
     return repo.changeStatus(
       id: params.id,
-      status: params.status,
+      hasStarted: params.hasStarted,
+      hasGivenBill: params.hasGivenBill,
     );
   }
 }
 
 class ChangeStatusOfTableParams extends Equatable {
   final int id;
-  final String status;
+  final bool hasStarted;
+  final bool hasGivenBill;
 
   const ChangeStatusOfTableParams({
     required this.id,
-    required this.status,
+    required this.hasStarted,
+    required this.hasGivenBill,
   });
 
   @override
-  List<Object?> get props => [id, status];
+  List<Object?> get props => [
+        id,
+        hasStarted,
+        hasGivenBill,
+      ];
 }

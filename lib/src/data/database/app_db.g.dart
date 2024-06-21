@@ -28,8 +28,27 @@ class $RestaurantTableTable extends RestaurantTable
   late final GeneratedColumn<String> status = GeneratedColumn<String>(
       'status', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _hasStartedMeta =
+      const VerificationMeta('hasStarted');
   @override
-  List<GeneratedColumn> get $columns => [id, title, status];
+  late final GeneratedColumn<bool> hasStarted = GeneratedColumn<bool>(
+      'has_started', aliasedName, true,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("has_started" IN (0, 1))'));
+  static const VerificationMeta _hasGivenBillMeta =
+      const VerificationMeta('hasGivenBill');
+  @override
+  late final GeneratedColumn<bool> hasGivenBill = GeneratedColumn<bool>(
+      'has_given_bill', aliasedName, true,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("has_given_bill" IN (0, 1))'));
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, title, status, hasStarted, hasGivenBill];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -52,6 +71,18 @@ class $RestaurantTableTable extends RestaurantTable
       context.handle(_statusMeta,
           status.isAcceptableOrUnknown(data['status']!, _statusMeta));
     }
+    if (data.containsKey('has_started')) {
+      context.handle(
+          _hasStartedMeta,
+          hasStarted.isAcceptableOrUnknown(
+              data['has_started']!, _hasStartedMeta));
+    }
+    if (data.containsKey('has_given_bill')) {
+      context.handle(
+          _hasGivenBillMeta,
+          hasGivenBill.isAcceptableOrUnknown(
+              data['has_given_bill']!, _hasGivenBillMeta));
+    }
     return context;
   }
 
@@ -67,6 +98,10 @@ class $RestaurantTableTable extends RestaurantTable
           .read(DriftSqlType.string, data['${effectivePrefix}title']),
       status: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}status']),
+      hasStarted: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}has_started']),
+      hasGivenBill: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}has_given_bill']),
     );
   }
 
@@ -81,7 +116,14 @@ class RestaurantTableData extends DataClass
   final int id;
   final String? title;
   final String? status;
-  const RestaurantTableData({required this.id, this.title, this.status});
+  final bool? hasStarted;
+  final bool? hasGivenBill;
+  const RestaurantTableData(
+      {required this.id,
+      this.title,
+      this.status,
+      this.hasStarted,
+      this.hasGivenBill});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -91,6 +133,12 @@ class RestaurantTableData extends DataClass
     }
     if (!nullToAbsent || status != null) {
       map['status'] = Variable<String>(status);
+    }
+    if (!nullToAbsent || hasStarted != null) {
+      map['has_started'] = Variable<bool>(hasStarted);
+    }
+    if (!nullToAbsent || hasGivenBill != null) {
+      map['has_given_bill'] = Variable<bool>(hasGivenBill);
     }
     return map;
   }
@@ -102,6 +150,12 @@ class RestaurantTableData extends DataClass
           title == null && nullToAbsent ? const Value.absent() : Value(title),
       status:
           status == null && nullToAbsent ? const Value.absent() : Value(status),
+      hasStarted: hasStarted == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hasStarted),
+      hasGivenBill: hasGivenBill == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hasGivenBill),
     );
   }
 
@@ -112,6 +166,8 @@ class RestaurantTableData extends DataClass
       id: serializer.fromJson<int>(json['id']),
       title: serializer.fromJson<String?>(json['title']),
       status: serializer.fromJson<String?>(json['status']),
+      hasStarted: serializer.fromJson<bool?>(json['hasStarted']),
+      hasGivenBill: serializer.fromJson<bool?>(json['hasGivenBill']),
     );
   }
   @override
@@ -121,71 +177,98 @@ class RestaurantTableData extends DataClass
       'id': serializer.toJson<int>(id),
       'title': serializer.toJson<String?>(title),
       'status': serializer.toJson<String?>(status),
+      'hasStarted': serializer.toJson<bool?>(hasStarted),
+      'hasGivenBill': serializer.toJson<bool?>(hasGivenBill),
     };
   }
 
   RestaurantTableData copyWith(
           {int? id,
           Value<String?> title = const Value.absent(),
-          Value<String?> status = const Value.absent()}) =>
+          Value<String?> status = const Value.absent(),
+          Value<bool?> hasStarted = const Value.absent(),
+          Value<bool?> hasGivenBill = const Value.absent()}) =>
       RestaurantTableData(
         id: id ?? this.id,
         title: title.present ? title.value : this.title,
         status: status.present ? status.value : this.status,
+        hasStarted: hasStarted.present ? hasStarted.value : this.hasStarted,
+        hasGivenBill:
+            hasGivenBill.present ? hasGivenBill.value : this.hasGivenBill,
       );
   @override
   String toString() {
     return (StringBuffer('RestaurantTableData(')
           ..write('id: $id, ')
           ..write('title: $title, ')
-          ..write('status: $status')
+          ..write('status: $status, ')
+          ..write('hasStarted: $hasStarted, ')
+          ..write('hasGivenBill: $hasGivenBill')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, title, status);
+  int get hashCode => Object.hash(id, title, status, hasStarted, hasGivenBill);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is RestaurantTableData &&
           other.id == this.id &&
           other.title == this.title &&
-          other.status == this.status);
+          other.status == this.status &&
+          other.hasStarted == this.hasStarted &&
+          other.hasGivenBill == this.hasGivenBill);
 }
 
 class RestaurantTableCompanion extends UpdateCompanion<RestaurantTableData> {
   final Value<int> id;
   final Value<String?> title;
   final Value<String?> status;
+  final Value<bool?> hasStarted;
+  final Value<bool?> hasGivenBill;
   const RestaurantTableCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
     this.status = const Value.absent(),
+    this.hasStarted = const Value.absent(),
+    this.hasGivenBill = const Value.absent(),
   });
   RestaurantTableCompanion.insert({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
     this.status = const Value.absent(),
+    this.hasStarted = const Value.absent(),
+    this.hasGivenBill = const Value.absent(),
   });
   static Insertable<RestaurantTableData> custom({
     Expression<int>? id,
     Expression<String>? title,
     Expression<String>? status,
+    Expression<bool>? hasStarted,
+    Expression<bool>? hasGivenBill,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (title != null) 'title': title,
       if (status != null) 'status': status,
+      if (hasStarted != null) 'has_started': hasStarted,
+      if (hasGivenBill != null) 'has_given_bill': hasGivenBill,
     });
   }
 
   RestaurantTableCompanion copyWith(
-      {Value<int>? id, Value<String?>? title, Value<String?>? status}) {
+      {Value<int>? id,
+      Value<String?>? title,
+      Value<String?>? status,
+      Value<bool?>? hasStarted,
+      Value<bool?>? hasGivenBill}) {
     return RestaurantTableCompanion(
       id: id ?? this.id,
       title: title ?? this.title,
       status: status ?? this.status,
+      hasStarted: hasStarted ?? this.hasStarted,
+      hasGivenBill: hasGivenBill ?? this.hasGivenBill,
     );
   }
 
@@ -201,6 +284,12 @@ class RestaurantTableCompanion extends UpdateCompanion<RestaurantTableData> {
     if (status.present) {
       map['status'] = Variable<String>(status.value);
     }
+    if (hasStarted.present) {
+      map['has_started'] = Variable<bool>(hasStarted.value);
+    }
+    if (hasGivenBill.present) {
+      map['has_given_bill'] = Variable<bool>(hasGivenBill.value);
+    }
     return map;
   }
 
@@ -209,7 +298,9 @@ class RestaurantTableCompanion extends UpdateCompanion<RestaurantTableData> {
     return (StringBuffer('RestaurantTableCompanion(')
           ..write('id: $id, ')
           ..write('title: $title, ')
-          ..write('status: $status')
+          ..write('status: $status, ')
+          ..write('hasStarted: $hasStarted, ')
+          ..write('hasGivenBill: $hasGivenBill')
           ..write(')'))
         .toString();
   }

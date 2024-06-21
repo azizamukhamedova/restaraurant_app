@@ -27,6 +27,7 @@ class OrderLocalDatasourceImpl extends OrderLocalDatasource {
     required int tableId,
   }) async {
     List<OrderData> list = await db.select(db.order).get();
+    list.removeWhere((element) => element.tableId != tableId);
     if (list.isEmpty == true) return [];
 
     Map<int, int> orders = {};

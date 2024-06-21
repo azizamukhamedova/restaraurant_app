@@ -21,13 +21,21 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
+        onCreate: (Migrator m) {
+          return m.createAll();
+        },
         onUpgrade: (migrator, from, to) async {
-          if (from == 1) {
-            await migrator.addColumn(restaurantTable, restaurantTable.status);
+          if (from == 2) {
+            await migrator.addColumn(
+                restaurantTable, restaurantTable.hasGivenBill);
+          }
+          if (from == 2) {
+            await migrator.addColumn(
+                restaurantTable, restaurantTable.hasStarted);
           }
         },
       );

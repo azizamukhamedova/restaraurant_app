@@ -9,7 +9,8 @@ abstract class TableLocalDatasource {
   Future<List<TableModel>> fetchTables();
   Future<void> changeStatus({
     required int id,
-    required String status,
+    required bool hasStarted,
+    required bool hasGivenBill,
   });
 }
 
@@ -31,7 +32,13 @@ class TableLocalDatasourceImpl extends TableLocalDatasource {
     }
     return list.map(
       (el) {
-        return TableModel(id: el.id, title: el.title, status: el.status);
+        return TableModel(
+          id: el.id,
+          title: el.title,
+          status: el.status,
+          hasStarted: el.hasStarted,
+          hasGivenBill: el.hasGivenBill,
+        );
       },
     ).toList();
   }
@@ -39,16 +46,19 @@ class TableLocalDatasourceImpl extends TableLocalDatasource {
   @override
   Future<void> changeStatus({
     required int id,
-    required String status,
+    required bool hasStarted,
+    required bool hasGivenBill,
   }) async {
     RestaurantTableData? table = await (db.select(db.restaurantTable)
           ..where((tbl) => tbl.id.equals(id)))
         .getSingleOrNull();
     if (table != null) {
-      db
-          .update(db.restaurantTable)
-          .replace(table.copyWith(status: Value(status)));
+      db.update(db.restaurantTable).replace(
+            table.copyWith(
+              hasStarted: Value(hasStarted),
+              hasGivenBill: Value(hasGivenBill),
+            ),
+          );
     }
-    throw UnimplementedError();
   }
 }
