@@ -326,8 +326,14 @@ class $BillTable extends Bill with TableInfo<$BillTable, BillData> {
   late final GeneratedColumn<int> tableId = GeneratedColumn<int>(
       'table_id', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _tableTitleMeta =
+      const VerificationMeta('tableTitle');
   @override
-  List<GeneratedColumn> get $columns => [id, tableId];
+  late final GeneratedColumn<String> tableTitle = GeneratedColumn<String>(
+      'table_title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [id, tableId, tableTitle];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -345,6 +351,12 @@ class $BillTable extends Bill with TableInfo<$BillTable, BillData> {
       context.handle(_tableIdMeta,
           tableId.isAcceptableOrUnknown(data['table_id']!, _tableIdMeta));
     }
+    if (data.containsKey('table_title')) {
+      context.handle(
+          _tableTitleMeta,
+          tableTitle.isAcceptableOrUnknown(
+              data['table_title']!, _tableTitleMeta));
+    }
     return context;
   }
 
@@ -358,6 +370,8 @@ class $BillTable extends Bill with TableInfo<$BillTable, BillData> {
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       tableId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}table_id']),
+      tableTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}table_title']),
     );
   }
 
@@ -370,13 +384,17 @@ class $BillTable extends Bill with TableInfo<$BillTable, BillData> {
 class BillData extends DataClass implements Insertable<BillData> {
   final int id;
   final int? tableId;
-  const BillData({required this.id, this.tableId});
+  final String? tableTitle;
+  const BillData({required this.id, this.tableId, this.tableTitle});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     if (!nullToAbsent || tableId != null) {
       map['table_id'] = Variable<int>(tableId);
+    }
+    if (!nullToAbsent || tableTitle != null) {
+      map['table_title'] = Variable<String>(tableTitle);
     }
     return map;
   }
@@ -387,6 +405,9 @@ class BillData extends DataClass implements Insertable<BillData> {
       tableId: tableId == null && nullToAbsent
           ? const Value.absent()
           : Value(tableId),
+      tableTitle: tableTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(tableTitle),
     );
   }
 
@@ -396,6 +417,7 @@ class BillData extends DataClass implements Insertable<BillData> {
     return BillData(
       id: serializer.fromJson<int>(json['id']),
       tableId: serializer.fromJson<int?>(json['tableId']),
+      tableTitle: serializer.fromJson<String?>(json['tableTitle']),
     );
   }
   @override
@@ -404,58 +426,72 @@ class BillData extends DataClass implements Insertable<BillData> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'tableId': serializer.toJson<int?>(tableId),
+      'tableTitle': serializer.toJson<String?>(tableTitle),
     };
   }
 
-  BillData copyWith({int? id, Value<int?> tableId = const Value.absent()}) =>
+  BillData copyWith(
+          {int? id,
+          Value<int?> tableId = const Value.absent(),
+          Value<String?> tableTitle = const Value.absent()}) =>
       BillData(
         id: id ?? this.id,
         tableId: tableId.present ? tableId.value : this.tableId,
+        tableTitle: tableTitle.present ? tableTitle.value : this.tableTitle,
       );
   @override
   String toString() {
     return (StringBuffer('BillData(')
           ..write('id: $id, ')
-          ..write('tableId: $tableId')
+          ..write('tableId: $tableId, ')
+          ..write('tableTitle: $tableTitle')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, tableId);
+  int get hashCode => Object.hash(id, tableId, tableTitle);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is BillData &&
           other.id == this.id &&
-          other.tableId == this.tableId);
+          other.tableId == this.tableId &&
+          other.tableTitle == this.tableTitle);
 }
 
 class BillCompanion extends UpdateCompanion<BillData> {
   final Value<int> id;
   final Value<int?> tableId;
+  final Value<String?> tableTitle;
   const BillCompanion({
     this.id = const Value.absent(),
     this.tableId = const Value.absent(),
+    this.tableTitle = const Value.absent(),
   });
   BillCompanion.insert({
     this.id = const Value.absent(),
     this.tableId = const Value.absent(),
+    this.tableTitle = const Value.absent(),
   });
   static Insertable<BillData> custom({
     Expression<int>? id,
     Expression<int>? tableId,
+    Expression<String>? tableTitle,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (tableId != null) 'table_id': tableId,
+      if (tableTitle != null) 'table_title': tableTitle,
     });
   }
 
-  BillCompanion copyWith({Value<int>? id, Value<int?>? tableId}) {
+  BillCompanion copyWith(
+      {Value<int>? id, Value<int?>? tableId, Value<String?>? tableTitle}) {
     return BillCompanion(
       id: id ?? this.id,
       tableId: tableId ?? this.tableId,
+      tableTitle: tableTitle ?? this.tableTitle,
     );
   }
 
@@ -468,6 +504,9 @@ class BillCompanion extends UpdateCompanion<BillData> {
     if (tableId.present) {
       map['table_id'] = Variable<int>(tableId.value);
     }
+    if (tableTitle.present) {
+      map['table_title'] = Variable<String>(tableTitle.value);
+    }
     return map;
   }
 
@@ -475,7 +514,8 @@ class BillCompanion extends UpdateCompanion<BillData> {
   String toString() {
     return (StringBuffer('BillCompanion(')
           ..write('id: $id, ')
-          ..write('tableId: $tableId')
+          ..write('tableId: $tableId, ')
+          ..write('tableTitle: $tableTitle')
           ..write(')'))
         .toString();
   }

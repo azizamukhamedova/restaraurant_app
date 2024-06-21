@@ -18,6 +18,9 @@ abstract class TableRepo {
     required bool hasStarted,
     required bool hasGivenBill,
   });
+  Future<Either<Failure, String>> getTableTitle({
+    required int id,
+  });
 }
 
 class TableRepoImpl extends TableRepo {
@@ -73,6 +76,29 @@ class TableRepoImpl extends TableRepo {
           hasStarted: hasStarted,
           hasGivenBill: hasGivenBill,
         );
+        return Right(res);
+      }
+    } catch (e) {
+      Get.log(
+        e.toString(),
+        isError: true,
+      );
+      final failure = handleException(e as Exception);
+      return Left(failure);
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> getTableTitle({
+    required int id,
+  }) async {
+    bool isConnectedToNetwork = await networkInfo.isConnected;
+    try {
+      if (isConnectedToNetwork) {
+        final res = await remoteDatasource.getTableTitle(id: id);
+        return Right(res);
+      } else {
+        final res = await localDatasource.getTableTitle(id: id);
         return Right(res);
       }
     } catch (e) {

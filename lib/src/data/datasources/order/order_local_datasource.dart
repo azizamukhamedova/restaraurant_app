@@ -15,6 +15,9 @@ abstract class OrderLocalDatasource {
     required int tableId,
     required List<OrderModel> orders,
   });
+  Future<void> deleteOrdersForTable({
+    required int tableId,
+  });
 }
 
 class OrderLocalDatasourceImpl extends OrderLocalDatasource {
@@ -83,5 +86,13 @@ class OrderLocalDatasourceImpl extends OrderLocalDatasource {
             );
       }
     }
+  }
+
+  @override
+  Future<void> deleteOrdersForTable({
+    required int tableId,
+  }) async {
+    await (db.delete(db.order)..where((tbl) => tbl.tableId.equals(tableId)))
+        .go();
   }
 }

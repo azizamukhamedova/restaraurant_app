@@ -39,7 +39,9 @@ class TableDetailPage extends StatelessWidget {
             ),
           ),
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              _controller.createBillForTable();
+            },
             child: const Padding(
               padding: paddingHorizontal16,
               child: Icon(Icons.money, color: Colors.white),

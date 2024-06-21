@@ -53,6 +53,13 @@ init() async {
   Get.put<OrderRemoteDatasource>(
     OrderRemoteDatasourceImpl(client: Get.find()),
   );
+  Get.lazyPut<BillLocalDatasource>(
+    () => BillLocalDatasourceImpl(db: database),
+    fenix: true,
+  );
+  Get.put<BillRemoteDatasource>(
+    BillRemoteDatasourceImpl(client: Get.find()),
+  );
 
   // repositories
   Get.lazyPut<TableRepo>(
@@ -79,6 +86,14 @@ init() async {
     ),
     fenix: true,
   );
+  Get.lazyPut<BillRepo>(
+    () => BillRepoImpl(
+      networkInfo: Get.find(),
+      remoteDatasource: Get.find(),
+      localDatasource: Get.find(),
+    ),
+    fenix: true,
+  );
 
   // usecases
   Get.lazyPut(() => GetTables(repo: Get.find()), fenix: true);
@@ -86,20 +101,35 @@ init() async {
   Get.lazyPut(() => GetMeals(repo: Get.find()), fenix: true);
   Get.lazyPut(() => GetOrdersForTable(repo: Get.find()), fenix: true);
   Get.lazyPut(() => SaveOrdersForTable(repo: Get.find()), fenix: true);
+  Get.lazyPut(() => DeleteBill(repo: Get.find()), fenix: true);
+  Get.lazyPut(() => GetBills(repo: Get.find()), fenix: true);
+  Get.lazyPut(() => DeleteOrdersForTable(repo: Get.find()), fenix: true);
+  Get.lazyPut(() => GetTableTitle(repo: Get.find()), fenix: true);
+  Get.lazyPut(() => CreateBill(repo: Get.find()), fenix: true);
 
   // controllers
   Get.put<HomePageControllerImpl>(
     HomePageControllerImpl(
       getTablesUsecase: Get.find(),
-      changeStatusOfTableUsecase: Get.find(),
+      getBillsUsecase: Get.find(),
     ),
   );
   Get.put<TableDetailPageControllerImpl>(
     TableDetailPageControllerImpl(
       getMealsUsecase: Get.find(),
+      createBillUsecase: Get.find(),
       getOrdersForTableUsecase: Get.find(),
       saveOrdersForTableUsecase: Get.find(),
       changeStatusOfTableUsecase: Get.find(),
+    ),
+  );
+  Get.put<BillDetailPageControllerImpl>(
+    BillDetailPageControllerImpl(
+      deleteBillUsecase: Get.find(),
+      getTableTitleUsecase: Get.find(),
+      getOrdersForTableUsecase: Get.find(),
+      changeStatusOfTableUsecase: Get.find(),
+      deleteOrdersForTableUsecase: Get.find(),
     ),
   );
 }

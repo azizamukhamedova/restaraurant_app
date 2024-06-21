@@ -19,6 +19,9 @@ abstract class OrderRepo {
     required int tableId,
     required List<OrderModel> orders,
   });
+  Future<Either<Failure, void>> deleteOrdersForTable({
+    required int tableId,
+  });
 }
 
 class OrderRepoImpl extends OrderRepo {
@@ -76,6 +79,33 @@ class OrderRepoImpl extends OrderRepo {
         final res = await localDatasource.saveOrdersForTable(
           tableId: tableId,
           orders: orders,
+        );
+        return Right(res);
+      }
+    } catch (e) {
+      Get.log(
+        e.toString(),
+        isError: true,
+      );
+      final failure = handleException(e as Exception);
+      return Left(failure);
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteOrdersForTable({
+    required int tableId,
+  }) async {
+    bool isConnectedToNetwork = await networkInfo.isConnected;
+    try {
+      if (isConnectedToNetwork) {
+        final res = await remoteDatasource.deleteOrdersForTable(
+          tableId: tableId,
+        );
+        return Right(res);
+      } else {
+        final res = await localDatasource.deleteOrdersForTable(
+          tableId: tableId,
         );
         return Right(res);
       }

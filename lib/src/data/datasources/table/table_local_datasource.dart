@@ -12,6 +12,9 @@ abstract class TableLocalDatasource {
     required bool hasStarted,
     required bool hasGivenBill,
   });
+  Future<String> getTableTitle({
+    required int id,
+  });
 }
 
 class TableLocalDatasourceImpl extends TableLocalDatasource {
@@ -60,5 +63,15 @@ class TableLocalDatasourceImpl extends TableLocalDatasource {
             ),
           );
     }
+  }
+
+  @override
+  Future<String> getTableTitle({
+    required int id,
+  }) async {
+    final query = db.select(db.restaurantTable)
+      ..where((tbl) => tbl.id.equals(id));
+    final result = await query.getSingle();
+    return result.title ?? 'Title';
   }
 }

@@ -64,12 +64,16 @@ class TableItem extends StatelessWidget {
                 Text(table.title ?? 'Table'),
               ],
             ),
-            table.hasGivenBill == true
-                ? const Icon(Icons.money, color: Colors.blueAccent)
-                : empty,
-            table.hasGivenBill == false && table.hasStarted == true
-                ? const Icon(Icons.star, color: Colors.blueAccent)
-                : empty,
+            Row(
+              children: [
+                table.hasGivenBill == true
+                    ? const Icon(Icons.money, color: Colors.blueAccent)
+                    : empty,
+                table.hasGivenBill == false && table.hasStarted == true
+                    ? const Icon(Icons.star, color: Colors.blueAccent)
+                    : empty,
+              ],
+            ),
           ],
         ),
       ),

@@ -11,6 +11,9 @@ abstract class OrderRemoteDatasource {
     required int tableId,
     required List<OrderModel> orders,
   });
+  Future<void> deleteOrdersForTable({
+    required int tableId,
+  });
 }
 
 class OrderRemoteDatasourceImpl extends OrderRemoteDatasource {
@@ -29,6 +32,13 @@ class OrderRemoteDatasourceImpl extends OrderRemoteDatasource {
   Future<void> saveOrdersForTable({
     required int tableId,
     required List<OrderModel> orders,
+  }) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> deleteOrdersForTable({
+    required int tableId,
   }) {
     throw UnimplementedError();
   }

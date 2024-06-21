@@ -10,6 +10,9 @@ abstract class TableRemoteDatasource {
     required bool hasStarted,
     required bool hasGivenBill,
   });
+  Future<String> getTableTitle({
+    required int id,
+  });
 }
 
 class TableRemoteDatasourceImpl extends TableRemoteDatasource {
@@ -27,6 +30,13 @@ class TableRemoteDatasourceImpl extends TableRemoteDatasource {
     required int id,
     required bool hasStarted,
     required bool hasGivenBill,
+  }) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<String> getTableTitle({
+    required int id,
   }) {
     throw UnimplementedError();
   }

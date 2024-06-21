@@ -14,12 +14,13 @@ import '/src/domain/usecases/.usecases.dart';
 
 import '/src/presentation/controllers/.controllers.dart';
 
-final HomePageControllerImpl homeController = Get.find();
+final HomePageControllerImpl _homeController = Get.find();
 
 abstract class TableDetailPageController {
   Future<void> getMeals();
   Future<void> getOrdersForTable(TableModel table);
   Future<void> saveOrdersForTable();
+  Future<void> createBillForTable();
   void addMeal(MealModel meal);
   void decreaseMeal(OrderModel order);
 }
@@ -28,12 +29,14 @@ class TableDetailPageControllerImpl extends GetxController
     implements TableDetailPageController {
   // usecases
   final GetMeals getMealsUsecase;
+  final CreateBill createBillUsecase;
   final GetOrdersForTable getOrdersForTableUsecase;
   final SaveOrdersForTable saveOrdersForTableUsecase;
   final ChangeStatusOfTable changeStatusOfTableUsecase;
 
   TableDetailPageControllerImpl({
     required this.getMealsUsecase,
+    required this.createBillUsecase,
     required this.getOrdersForTableUsecase,
     required this.saveOrdersForTableUsecase,
     required this.changeStatusOfTableUsecase,
@@ -86,16 +89,6 @@ class TableDetailPageControllerImpl extends GetxController
       );
     }
     update([orderListId]);
-    if (tableModel?.hasStarted != true) {
-      await changeStatusOfTableUsecase.call(
-        ChangeStatusOfTableParams(
-          id: tableModel?.id ?? 0,
-          hasStarted: true,
-          hasGivenBill: false,
-        ),
-      );
-      homeController.getTables();
-    }
   }
 
   @override
@@ -138,29 +131,40 @@ class TableDetailPageControllerImpl extends GetxController
 
   @override
   Future<void> saveOrdersForTable() async {
-    final res = await saveOrdersForTableUsecase.call(
+    await saveOrdersForTableUsecase.call(
       SaveOrdersForTableParams(
         tableId: tableModel?.id ?? 0,
         orders: orders,
       ),
     );
-    res.fold((failure) {
-      if (failure is NetworkFailure) {
-        orderListError = "network is not connected!";
-        Get.log("network is not connected!");
-      } else if (failure is ServerTimeOutFailure) {
-        orderListError = "network connection is bad!";
-        Get.log("network connection is bad!");
-      } else if (failure is ServerUnAuthorizeFailure) {
-        ///
-      } else {
-        orderListError = "Something went wrong!";
-        Get.log("Something went wrong!");
-      }
-      update([orderListId]);
-    }, (response) async {
-      // orders = response;
-      update([orderListId]);
-    });
+    if (tableModel?.hasStarted != true) {
+      await changeStatusOfTableUsecase.call(
+        ChangeStatusOfTableParams(
+          id: tableModel?.id ?? 0,
+          hasStarted: true,
+          hasGivenBill: false,
+        ),
+      );
+      _homeController.getTables();
+    }
+  }
+
+  @override
+  Future<void> createBillForTable() async {
+    saveOrdersForTable();
+    if (orders.isNotEmpty && tableModel?.hasGivenBill != true) {
+      await createBillUsecase.call(
+        CreateBillParams(table: tableModel!),
+      );
+      await changeStatusOfTableUsecase.call(
+        ChangeStatusOfTableParams(
+          id: tableModel?.id ?? 0,
+          hasStarted: true,
+          hasGivenBill: true,
+        ),
+      );
+      _homeController.getTables();
+      _homeController.getBills();
+    }
   }
 }
