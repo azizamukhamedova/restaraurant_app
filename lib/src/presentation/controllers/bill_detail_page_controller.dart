@@ -6,7 +6,6 @@ import '/core/error/failure.dart';
 /// models
 import '/src/data/models/bill_model.dart';
 import '/src/data/models/order_model.dart';
-import '/src/data/models/table_model.dart';
 
 /// usecases
 import '/src/domain/usecases/.usecases.dart';
@@ -24,14 +23,12 @@ class BillDetailPageControllerImpl extends GetxController
     implements BillDetailPageController {
   // usecases
   final DeleteBill deleteBillUsecase;
-  final GetTableTitle getTableTitleUsecase;
   final GetOrdersForTable getOrdersForTableUsecase;
   final ChangeStatusOfTable changeStatusOfTableUsecase;
   final DeleteOrdersForTable deleteOrdersForTableUsecase;
 
   BillDetailPageControllerImpl({
     required this.deleteBillUsecase,
-    required this.getTableTitleUsecase,
     required this.getOrdersForTableUsecase,
     required this.changeStatusOfTableUsecase,
     required this.deleteOrdersForTableUsecase,
@@ -39,7 +36,6 @@ class BillDetailPageControllerImpl extends GetxController
 
   // results
   List<OrderModel> orders = [];
-  TableModel? tableModel;
   BillModel? billModel;
 
   // get builder's id
@@ -52,34 +48,27 @@ class BillDetailPageControllerImpl extends GetxController
   Future<void> getOrdersForTable(BillModel bill) async {
     orders = [];
     update([orderListId]);
-    tableModel = null;
     billModel = bill;
-
-    final res = await getTableTitleUsecase.call(
-      GetTableTitleParams(id: billModel?.tableId ?? 0),
+    final res = await getOrdersForTableUsecase.call(
+      GetOrdersForTableParams(tableId: bill.tableId ?? 0),
     );
-    res.fold((failure) {}, (table) async {
-      final res = await getOrdersForTableUsecase.call(
-        GetOrdersForTableParams(tableId: tableModel?.id ?? 0),
-      );
-      res.fold((failure) {
-        if (failure is NetworkFailure) {
-          orderListError = "network is not connected!";
-          Get.log("network is not connected!");
-        } else if (failure is ServerTimeOutFailure) {
-          orderListError = "network connection is bad!";
-          Get.log("network connection is bad!");
-        } else if (failure is ServerUnAuthorizeFailure) {
-          ///
-        } else {
-          orderListError = "Something went wrong!";
-          Get.log("Something went wrong!");
-        }
-        update([orderListId]);
-      }, (response) async {
-        orders = response;
-        update([orderListId]);
-      });
+    res.fold((failure) {
+      if (failure is NetworkFailure) {
+        orderListError = "network is not connected!";
+        Get.log("network is not connected!");
+      } else if (failure is ServerTimeOutFailure) {
+        orderListError = "network connection is bad!";
+        Get.log("network connection is bad!");
+      } else if (failure is ServerUnAuthorizeFailure) {
+        ///
+      } else {
+        orderListError = "Something went wrong!";
+        Get.log("Something went wrong!");
+      }
+      update([orderListId]);
+    }, (response) async {
+      orders = response;
+      update([orderListId]);
     });
   }
 
@@ -93,11 +82,13 @@ class BillDetailPageControllerImpl extends GetxController
     );
     await changeStatusOfTableUsecase.call(
       ChangeStatusOfTableParams(
-        id: tableModel?.id ?? 0,
+        id: billModel?.tableId ?? 0,
         hasStarted: false,
         hasGivenBill: false,
       ),
     );
     _homeController.getTables();
+    _homeController.getBills();
+    Get.back();
   }
 }

@@ -9,11 +9,8 @@ abstract class TableLocalDatasource {
   Future<List<TableModel>> fetchTables();
   Future<void> changeStatus({
     required int id,
-    required bool hasStarted,
-    required bool hasGivenBill,
-  });
-  Future<String> getTableTitle({
-    required int id,
+    required bool? hasStarted,
+    required bool? hasGivenBill,
   });
 }
 
@@ -49,8 +46,8 @@ class TableLocalDatasourceImpl extends TableLocalDatasource {
   @override
   Future<void> changeStatus({
     required int id,
-    required bool hasStarted,
-    required bool hasGivenBill,
+    required bool? hasStarted,
+    required bool? hasGivenBill,
   }) async {
     RestaurantTableData? table = await (db.select(db.restaurantTable)
           ..where((tbl) => tbl.id.equals(id)))
@@ -58,20 +55,10 @@ class TableLocalDatasourceImpl extends TableLocalDatasource {
     if (table != null) {
       db.update(db.restaurantTable).replace(
             table.copyWith(
-              hasStarted: Value(hasStarted),
-              hasGivenBill: Value(hasGivenBill),
+              hasStarted: Value(hasStarted ?? table.hasStarted),
+              hasGivenBill: Value(hasGivenBill ?? table.hasGivenBill),
             ),
           );
     }
-  }
-
-  @override
-  Future<String> getTableTitle({
-    required int id,
-  }) async {
-    final query = db.select(db.restaurantTable)
-      ..where((tbl) => tbl.id.equals(id));
-    final result = await query.getSingle();
-    return result.title ?? 'Title';
   }
 }

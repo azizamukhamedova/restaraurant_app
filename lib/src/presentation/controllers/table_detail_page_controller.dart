@@ -137,12 +137,12 @@ class TableDetailPageControllerImpl extends GetxController
         orders: orders,
       ),
     );
-    if (tableModel?.hasStarted != true) {
+    if (tableModel?.hasStarted != true && orders.isNotEmpty) {
       await changeStatusOfTableUsecase.call(
         ChangeStatusOfTableParams(
           id: tableModel?.id ?? 0,
           hasStarted: true,
-          hasGivenBill: false,
+          hasGivenBill: null,
         ),
       );
       _homeController.getTables();

@@ -13,5 +13,4 @@ export 'order/save_orders_for_table.dart';
 
 /// table
 export 'table/change_status.dart';
-export 'table/get_table_title.dart';
 export 'table/get_tables.dart';

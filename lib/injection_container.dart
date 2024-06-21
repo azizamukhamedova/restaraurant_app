@@ -104,7 +104,6 @@ init() async {
   Get.lazyPut(() => DeleteBill(repo: Get.find()), fenix: true);
   Get.lazyPut(() => GetBills(repo: Get.find()), fenix: true);
   Get.lazyPut(() => DeleteOrdersForTable(repo: Get.find()), fenix: true);
-  Get.lazyPut(() => GetTableTitle(repo: Get.find()), fenix: true);
   Get.lazyPut(() => CreateBill(repo: Get.find()), fenix: true);
 
   // controllers
@@ -126,7 +125,6 @@ init() async {
   Get.put<BillDetailPageControllerImpl>(
     BillDetailPageControllerImpl(
       deleteBillUsecase: Get.find(),
-      getTableTitleUsecase: Get.find(),
       getOrdersForTableUsecase: Get.find(),
       changeStatusOfTableUsecase: Get.find(),
       deleteOrdersForTableUsecase: Get.find(),

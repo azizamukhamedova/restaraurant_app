@@ -24,8 +24,8 @@ class ChangeStatusOfTable extends Usecase<void, ChangeStatusOfTableParams> {
 
 class ChangeStatusOfTableParams extends Equatable {
   final int id;
-  final bool hasStarted;
-  final bool hasGivenBill;
+  final bool? hasStarted;
+  final bool? hasGivenBill;
 
   const ChangeStatusOfTableParams({
     required this.id,

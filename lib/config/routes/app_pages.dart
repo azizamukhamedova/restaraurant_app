@@ -8,7 +8,8 @@ import 'pages.dart';
 
 class AppPages {
   static final getPages = [
-    GetPage(name: AppRoutes.home, page: () => HomePage()),
-    GetPage(name: AppRoutes.tableDetail, page: () => TableDetailPage()),
+    GetPage(name: AppRoutes.home, page: () => const HomePage()),
+    GetPage(name: AppRoutes.tableDetail, page: () => const TableDetailPage()),
+    GetPage(name: AppRoutes.billDetail, page: () => const BillDetailPage()),
   ];
 }

@@ -46,7 +46,7 @@ class BillItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Get.toNamed(AppRoutes.tableDetail, arguments: bill);
+        Get.toNamed(AppRoutes.billDetail, arguments: bill);
       },
       child: Container(
         margin: paddingTop16,
